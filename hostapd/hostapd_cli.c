@@ -7,7 +7,8 @@
  */
 
 #include "includes.h"
-#include <dirent.h>
+/*#include <dirent.h>*/
+#include "dirent.h"
 
 #include "common/wpa_ctrl.h"
 #include "common/ieee802_11_defs.h"
@@ -1269,6 +1270,38 @@ static int hostapd_cli_cmd_raw(struct wpa_ctrl *ctrl, int argc, char *argv[])
 }
 
 
+static int helloworld(struct wpa_ctrl *ctrl, int argc, char *argv[])
+{
+	return wpa_ctrl_command(ctrl, "HELLOWORLD");
+}
+
+
+static int hostapd_add_pmksa_entry(struct wpa_ctrl *ctrl, int argc, char *argv[])
+{
+	if (argc != 4) {
+		printf("Invalid PMKSA_ADD command: needs 4 arguments\n");
+		return -1;
+	}
+	return hostapd_cli_cmd(ctrl, "PMKSA_ADD", 4, argc, argv);
+}
+
+
+static int hostapd_new_pmksa_entry(struct wpa_ctrl *ctrl, int argc, char *argv[])
+{
+	if (argc != 4) {
+		printf("Invalid PMKSA_CREATE command: needs 4 arguments\n");
+		return -1;
+	}
+	return hostapd_cli_cmd(ctrl, "PMKSA_CREATE", 4, argc, argv);
+}
+
+
+static int hostapd_cli_cmd_pmksa_list(struct wpa_ctrl *ctrl, int argc, char *argv[])
+{
+	return wpa_ctrl_command(ctrl, "PMKSA_LIST");
+}
+
+
 static int hostapd_cli_cmd_pmksa(struct wpa_ctrl *ctrl, int argc, char *argv[])
 {
 	return wpa_ctrl_command(ctrl, "PMKSA");
@@ -1362,7 +1395,6 @@ static int hostapd_cli_cmd_driver_flags(struct wpa_ctrl *ctrl, int argc,
 {
 	return wpa_ctrl_command(ctrl, "DRIVER_FLAGS");
 }
-
 
 struct hostapd_cli_cmd {
 	const char *cmd;
@@ -1488,6 +1520,12 @@ static const struct hostapd_cli_cmd hostapd_cli_commands[] = {
 	  " = show PMKSA cache entries" },
 	{ "pmksa_flush", hostapd_cli_cmd_pmksa_flush, NULL,
 	  " = flush PMKSA cache" },
+	{ "new_pmksa", hostapd_new_pmksa_entry, NULL,
+	  " = <SA> <PMKID> <PMK> <expiration in seconds> = store PMKSA cache entry" },
+	{ "pmksa_list", hostapd_cli_cmd_pmksa_list, NULL,
+	  " = show PMKID & PMK cache entries" },
+	{ "pmksa_add", hostapd_add_pmksa_entry, NULL,
+	  "<SA> <PMKID> <PMK> <expiration in seconds> = refresh PMKSA cache entry" },
 	{ "set_neighbor", hostapd_cli_cmd_set_neighbor, NULL,
 	  "<addr> <ssid=> <nr=> [lci=] [civic=] [stat]\n"
 	  "  = add AP to neighbor database" },
@@ -1499,6 +1537,8 @@ static const struct hostapd_cli_cmd hostapd_cli_commands[] = {
 	  " = send FTM range request"},
 	{ "driver_flags", hostapd_cli_cmd_driver_flags, NULL,
 	  " = show supported driver flags"},
+	{ "helloworld", helloworld, NULL,
+	  " = show a helloworld message from the programmer"},
 	{ NULL, NULL, NULL, NULL }
 };
 
