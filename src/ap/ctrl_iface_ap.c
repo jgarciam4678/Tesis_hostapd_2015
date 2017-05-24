@@ -641,9 +641,6 @@ void hostapd_ctrl_iface_pmksa_flush(struct hostapd_data *hapd)
 }
 
 
-#ifdef CONFIG_PMKSA_CACHE_EXTERNAL
-#ifdef CONFIG_MESH
-
 int hostapd_ctrl_iface_pmksa_list_mesh(struct hostapd_data *hapd,
 				       const u8 *addr, char *buf, size_t len)
 {
@@ -693,6 +690,81 @@ void * hostapd_ctrl_iface_pmksa_create_entry(const u8 *aa, char *cmd)
 
 	return wpa_auth_pmksa_create_entry(aa, spa, pmk, pmkid, expiration);
 }
+
+int hostapd_ap_add_pmksa(struct hostapd_data *hapd,
+				     char *buf)
+{
+	struct rsn_pmksa_cache_entry *entry;
+	char *pos, *pos2;
+	int ret = -1, expiration = 0;
+	struct os_reltime now;
+	
+	/*
+	 * Entry format:
+	 * <network_id> <BSSID> <PMKID> <PMK> <reauth_time in seconds>
+	 * <expiration in seconds> <akmp> <opportunistic>
+	 * [FILS Cache Identifier]
+	 */
+
+	pos = buf;
+	
+	printf("Inicio hostapd_ap_add_pmksa %s\n", buf);
+	
+	entry = os_zalloc(sizeof(*entry));
+	if (!entry)
+		return -1;
+	
+	if (hwaddr_aton(pos, entry->spa))
+		goto fail;
+	
+	pos = os_strchr(pos, ' ');
+	if (!pos)
+		goto fail;
+	pos++;
+
+	if (hexstr2bin(pos, entry->pmkid, PMKID_LEN) < 0)
+		goto fail;
+
+	pos = os_strchr(pos, ' ');
+	if (!pos)
+		goto fail;
+	pos++;
+	
+	pos2 = os_strchr(pos, ' ');
+	if (!pos2)
+		goto fail;
+	
+	entry->pmk_len = (pos2 - pos) / 2;
+	
+	if (entry->pmk_len < PMK_LEN || entry->pmk_len > PMK_LEN_MAX ||
+	    hexstr2bin(pos, entry->pmk, entry->pmk_len) < 0)
+		goto fail;
+
+	pos = os_strchr(pos, ' ');
+	if (!pos)
+		goto fail;
+	pos++;
+	
+	if (sscanf(pos, "%d", &expiration) != 1)
+		return NULL;
+	
+	os_get_reltime(&now);
+	entry->expiration = now.sec + expiration;
+	
+	printf("station\n");
+	
+	wpa_auth_pmksa_add_entry(hapd->wpa_auth, entry);
+	
+	entry = NULL;
+	ret = 0;
+fail:
+	os_free(entry);
+	return ret;
+
+}
+
+#ifdef CONFIG_PMKSA_CACHE_EXTERNAL
+#ifdef CONFIG_MESH
 
 #endif /* CONFIG_MESH */
 #endif /* CONFIG_PMKSA_CACHE_EXTERNAL */
