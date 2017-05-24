@@ -22,7 +22,7 @@
 
 static const char *const hostapd_cli_version =
 "hostapd_cli v" VERSION_STR "\n"
-"Copyright (c) 2004-2017, Jouni Malinen <j@w1.fi> and contributors";
+"Copyright (c) 2004-2017, Jouni Malinen <j@w1.fi> and Jesus' contributions: FSR Method";
 
 static struct wpa_ctrl *ctrl_conn;
 static int hostapd_cli_quit = 0;
