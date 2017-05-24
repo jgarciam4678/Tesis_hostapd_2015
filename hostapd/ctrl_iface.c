@@ -2602,6 +2602,18 @@ static int hostapd_ctrl_iface_receive_process(struct hostapd_data *hapd,
 							  reply_size);
 	} else if (os_strcmp(buf, "PMKSA_FLUSH") == 0) {
 		hostapd_ctrl_iface_pmksa_flush(hapd);
+	} else if (os_strcmp(buf, "PMKSA_LIST") == 0) {
+		reply_len = hostapd_ctrl_iface_pmksa_list_mesh(hapd, NULL, reply,
+						  reply_size);
+	} else if (os_strncmp(buf, "PMKSA_ADD ", 10) == 0) {
+		if (hostapd_ap_add_pmksa(hapd, buf + 10)<0)
+			reply_len = -1;
+	} else if (os_strncmp(buf, "PMKSA_CREATE ", 13) == 0) {
+		if (hostapd_ctrl_iface_pmksa_create_entry(hapd, buf + 13)<0)
+			reply_len = -1;
+	} else if (os_strcmp(buf, "HELLOWORLD") == 0) { 
+		os_memcpy(reply, "Hell! O' world, why won't my code compile?\n\n", 46); 
+		reply_len = 46;	
 	} else if (os_strncmp(buf, "SET_NEIGHBOR ", 13) == 0) {
 		if (hostapd_ctrl_iface_set_neighbor(hapd, buf + 13))
 			reply_len = -1;
