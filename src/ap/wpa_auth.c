@@ -4010,9 +4010,6 @@ void wpa_auth_pmksa_flush(struct wpa_authenticator *wpa_auth)
 }
 
 
-#ifdef CONFIG_PMKSA_CACHE_EXTERNAL
-#ifdef CONFIG_MESH
-
 int wpa_auth_pmksa_list_mesh(struct wpa_authenticator *wpa_auth, const u8 *addr,
 			     char *buf, size_t len)
 {
@@ -4057,6 +4054,9 @@ int wpa_auth_pmksa_add_entry(struct wpa_authenticator *wpa_auth,
 
 	return ret;
 }
+
+#ifdef CONFIG_PMKSA_CACHE_EXTERNAL
+#ifdef CONFIG_MESH
 
 #endif /* CONFIG_MESH */
 #endif /* CONFIG_PMKSA_CACHE_EXTERNAL */
