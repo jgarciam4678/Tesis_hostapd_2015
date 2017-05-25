@@ -261,7 +261,6 @@ void wpa_supplicant_initiate_eapol(struct wpa_supplicant *wpa_s)
 {
 #ifdef IEEE8021X_EAPOL
 	struct eapol_config eapol_conf;
-	struct wpa_ssid *ssid = wpa_s->current_ssid;
 
 #ifdef CONFIG_IBSS_RSN
 	if (ssid->mode == WPAS_MODE_IBSS &&
