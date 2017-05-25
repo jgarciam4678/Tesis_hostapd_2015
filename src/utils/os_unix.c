@@ -211,7 +211,6 @@ static int os_daemon(const char *pid_file)
 
 	if (setsid() < 0)
 		return -1;
-	}
 
 	if (chdir("/") < 0)
 		return -1;
