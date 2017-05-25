@@ -184,19 +184,19 @@ int os_gmtime(os_time_t t, struct os_tm *tm)
 }
 
 
-static int os_daemon(const char *pid_file)
+int os_daemonize(const char *pid_file)
 {
-	int pid=0, i, devnull;
+	int pid = 0, i, devnull;
 
-	#if defined(__uClinux__) || defined(__sun__)
-		return -1;
-	#else /* defined(__uClinux__) || defined(__sun__) */
+#if defined(__uClinux__) || defined(__sun__)
+	return -1;
+#else /* defined(__uClinux__) || defined(__sun__) */
 
-	#ifndef __APPLE__
-		pid = fork();
-		if (pid < 0)
+#ifndef __APPLE__
+	pid = fork();
+	if (pid < 0)
 		return -1;
-	#endif
+#endif
 
 	if (pid > 0) {
 		if (pid_file) {
